@@ -5,3 +5,7 @@ body{
 .tetris{
     border: 1px solid black;
 }
+.score{
+    font-family: 'Press Start 2P', cursive;
+    margin: 1rem;
+}

@@ -5,13 +5,23 @@ const row = 20;
 const column = 10;
 const sq = 40;
 const emptyColor = "white";
+const scr = document.querySelector('.score');
 let gameOver = false;
+let score = 0;
+let isTile = false;
 
 function drawSquare(x, y, color){
     ctx.fillStyle = color;
-    ctx.fillRect(x*sq,y*sq,sq,sq);
-    ctx.strokeStyle = "grey";
-    ctx.strokeRect(x*sq,y*sq,sq,sq);
+    ctx.fillRect(x*sq+2,y*sq+2,sq-4,sq-4);
+    // if(color !== emptyColor){
+    //    ctx.strokeStyle = "black";
+    //    ctx.strokeRect(x*sq,y*sq,sq,sq);
+    // }
+    // else{
+    //     console.log("aaaa");
+    //     ctx.strokeStyle = "pink";
+    //     ctx.strokeRect(x*sq,y*sq,sq,sq);
+    // }
 }
 
 let board = [];
@@ -70,10 +80,12 @@ Tile.prototype.fill = function(color){
 }
 
 Tile.prototype.draw = function(){
+    isTile = true;
     this.fill(this.color);
 }
 
 Tile.prototype.unDraw = function(){
+    isTile = false;
     this.fill(emptyColor);
 }
 
@@ -174,10 +186,40 @@ Tile.prototype.lock = function(){
             board[this.y+r][this.x+c] = this.color;
         }
     }
+    let addScore = 100;
+    let fullRowCount = 0;
+    for(r=0; r<row; r++){
+
+        let isRowFull = true;
+        for(c=0; c<column; c++){
+            isRowFull = isRowFull && (board[r][c] !== emptyColor);
+        }
+        if(isRowFull){
+            fullRowCount += fullRowCount + 1;
+            for(y=r; y>1; y--){
+                for(c=0; c<column; c++){
+                    board[y][c] = board[y-1][c];
+                }
+            }
+
+            for(c=0; c<column; c++){
+                board[0][c] = emptyColor;
+            }
+            addScore += 100;
+        }
+    }
+    countScore(addScore, fullRowCount);
     
     drawBoard();
 }
 
+function countScore(addScore, multiply){
+    multiply += 1;
+    score += Math.floor((addScore + (time.start / 1000)) * multiply);
+    time.level -= score / 10000;
+    console.log(time.level);
+    scr.innerHTML = "Score: "+score; 
+}
 
 
 document.addEventListener('keydown', control);
@@ -194,6 +236,11 @@ function control(event){
     }
     else if(event.keyCode == 40){
         tile.moveDown();
+    }
+    else if(event.keyCode == 32){
+        while(!tile.collision(0,1,tile.activeTetromino)){
+            tile.moveDown();
+        }
     }
 
 }
