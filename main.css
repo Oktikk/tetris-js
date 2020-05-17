@@ -1,12 +1,24 @@
 body{
+    margin: 1rem;
     display: flex;
     justify-content: center;
+    align-items: center;
     overflow: hidden;
 }
+.container{
+    display: flex;
+    padding: 3rem;
+    border: 1px solid black;
+}
+.gameStatus{
+    position: absolute;
+}
 .tetris{
+    display: flex;
     border: 1px solid black;
 }
 .score{
     font-family: 'Press Start 2P', cursive;
+    white-space: pre-wrap;
     margin: 1rem;
 }

@@ -1,14 +1,40 @@
 const canvas = document.querySelector('.tetris');
 const ctx = canvas.getContext('2d');
+const canvas2 = document.querySelector('.gameStatus');
+const ctx2 = canvas2.getContext('2d');
 
 const row = 20;
 const column = 10;
-const sq = 40;
+const sq = 30;
 const emptyColor = "white";
 const scr = document.querySelector('.score');
 let gameOver = false;
+let gamePaused = false;
 let score = 0;
 let isTile = false;
+
+function gameStatus(){
+    const canvas2 = document.querySelector('.gameStatus');
+    const ctx2 = canvas2.getContext('2d');
+    if(gameOver){
+        ctx2.font = "20px 'Press Start 2P'";
+        ctx2.fillText("GAME OVER", 60, row*sq/2);
+        ctx2.globalAlpha = 0.1;
+        ctx2.fillRect(0,0,300,600);
+        ctx2.globalAlpha = 1;
+        return;
+    }
+    if(gamePaused){
+        ctx2.font = "20px 'Press Start 2P'";
+        ctx2.fillText("GAME PAUSED", 40, row*sq/2);
+        ctx2.globalAlpha = 0.1;
+        ctx2.fillRect(0,0,300,600);
+        ctx2.globalAlpha = 1;
+    }
+    else{
+        ctx2.clearRect(0,0,300,600);
+    }
+}
 
 function drawSquare(x, y, color){
     ctx.fillStyle = color;
@@ -67,7 +93,12 @@ class Tile{
         this.activeTetromino = this.tetromino[this.tetrominoN];
 
         this.x = 3;
-        this.y = -1;
+        if (this.tetromino == I || this.tetromino == O){
+            this.y = -2;
+        }
+        else{
+            this.y = -1;
+        }
     }
 }
 
@@ -101,8 +132,6 @@ function randomTile(){
 }
 
 let tile = randomTile();
-
-//tile.draw();
 
 Tile.prototype.moveDown = function(){
     if(!this.collision(0,1,this.activeTetromino)){
@@ -182,17 +211,23 @@ Tile.prototype.collision = function(x,y,tile){
 Tile.prototype.lock = function(){
     for(r=0; r<this.activeTetromino.length; r++){
         for(c=0; c<this.activeTetromino.length; c++){
+            console.log(this.y+r);
             if(!this.activeTetromino[r][c]){
                 continue;
             }
             if(this.y + r < 0){
                 gameOver = true;
+                console.log('siema');
+                gameStatus();
                 break;
             }
             board[this.y+r][this.x+c] = this.color;
         }
+        if(gameOver){
+            return;
+        }
     }
-    let addScore = 100;
+    let addScore = 100000;
     let fullRowCount = 0;
     for(r=0; r<row; r++){
 
@@ -211,7 +246,7 @@ Tile.prototype.lock = function(){
             for(c=0; c<column; c++){
                 board[0][c] = emptyColor;
             }
-            addScore += 100;
+            addScore += 10000;
         }
     }
     countScore(addScore, fullRowCount);
@@ -221,16 +256,33 @@ Tile.prototype.lock = function(){
 
 function countScore(addScore, multiply){
     multiply += 1;
-    score += Math.floor((addScore + (time.start / 1000)) * multiply);
-    time.level -= score / 10000;
+    score += Math.floor((addScore/time.level) * multiply*1000);
+    time.level -= score / 1000;
     console.log(time.level);
-    scr.innerHTML = "Score: "+score; 
+    scr.innerHTML = "Score:&#10;"+score; 
 }
 
 
 document.addEventListener('keydown', control);
 
 function control(event){
+    if(gameOver){
+        return;
+    }
+    if(event.keyCode == 27){
+        if (gamePaused == false){
+            gamePaused = true;
+            gameStatus();
+        }
+        else{
+            gamePaused = false;
+            gameStatus();
+            drop();
+        }
+    }
+    if(gamePaused){
+        return;
+    }
     if(event.keyCode == 37){
         tile.moveLeft();
     }
@@ -259,7 +311,7 @@ function drop(now=0){
         tile.moveDown();
         time.start = now;
     }
-    if(!gameOver){
+    if(!gameOver && !gamePaused){
         requestAnimationFrame(drop);
     }
 }
