@@ -51,7 +51,9 @@ const tiles = [
     [J,'#00b894'],
     [O,'#fd79a8'],
     [I,'#fdcb6e']
-]
+];
+const numbers = ['0','1','2','3','4','5','6'];
+let copy = [];
 
 
 
@@ -90,7 +92,11 @@ Tile.prototype.unDraw = function(){
 }
 
 function randomTile(){
-    let r = Math.floor(Math.random()*tiles.length);
+    if (copy.length < 1){
+        copy = numbers.slice(0);
+    }
+    let r = copy[Math.floor(Math.random()*copy.length)];
+    copy.splice(copy.indexOf(r),1);
     return new Tile (tiles[r][0], tiles[r][1]);
 }
 
