@@ -94,7 +94,7 @@ class Tile{
         this.activeTetromino = this.tetromino[this.tetrominoN];
 
         this.x = 3;
-        if (this.tetromino == I || this.tetromino == O){
+        if (this.tetromino == I){
             this.y = -2;
         }
         else{
@@ -117,8 +117,28 @@ Tile.prototype.draw = function(){
     this.fill(this.color);
 }
 
+Tile.prototype.drawShadow = function(){
+    let Ycopy = this.y;
+    while(!this.collision(0,1,this.activeTetromino)){
+        this.y++;
+    }
+    ctx.globalAlpha = 0.4;
+    this.fill(this.color);
+    ctx.globalAlpha = 1;
+    this.y = Ycopy;
+}
+
 Tile.prototype.unDraw = function(){
     this.fill(emptyColor);
+}
+
+Tile.prototype.unDrawShadow = function(){
+    let Ycopy = this.y;
+    while(!this.collision(0,1,this.activeTetromino)){
+        this.y++;
+    }
+    this.fill(emptyColor);
+    this.y = Ycopy;
 }
 
 function randomTile(){
@@ -136,7 +156,9 @@ Tile.prototype.moveDown = function(){
     tileDistance++;
     if(!this.collision(0,1,this.activeTetromino)){
         this.unDraw();
+        this.unDrawShadow();
         this.y++;
+        this.drawShadow();
         this.draw();
     }
     else{
@@ -148,7 +170,9 @@ Tile.prototype.moveDown = function(){
 Tile.prototype.moveLeft = function(){
     if(!this.collision(-1,0,this.activeTetromino)){
         this.unDraw();
+        this.unDrawShadow();
         this.x--;
+        this.drawShadow();
         this.draw();
     }
 }
@@ -156,7 +180,9 @@ Tile.prototype.moveLeft = function(){
 Tile.prototype.moveRight = function(){
     if(!this.collision(1,0,this.activeTetromino)){
         this.unDraw();
+        this.unDrawShadow();
         this.x++;
+        this.drawShadow();
         this.draw();
     }
 }
@@ -177,9 +203,11 @@ Tile.prototype.rotate = function(){
     
     if(!this.collision(move,0,nextPattern)){
         this.unDraw();
+        this.unDrawShadow();
         this.x += move;
         this.tetrominoN = (this.tetrominoN + 1)%this.tetromino.length;
         this.activeTetromino = this.tetromino[this.tetrominoN];
+        this.drawShadow();
         this.draw();
     }
 }
