@@ -6,12 +6,12 @@ const ctx2 = canvas2.getContext('2d');
 const row = 20;
 const column = 10;
 const sq = 30;
-const emptyColor = "white";
-const scr = document.querySelector('.score');
+const emptyColor = "transparent";
 let gameOver = false;
 let gamePaused = false;
-let score = 0;
-let isTile = false;
+let lines = 0;
+let tileDistance = 0;
+let isHardDrop = false;
 
 function gameStatus(){
     const canvas2 = document.querySelector('.gameStatus');
@@ -38,16 +38,17 @@ function gameStatus(){
 
 function drawSquare(x, y, color){
     ctx.fillStyle = color;
-    ctx.fillRect(x*sq+2,y*sq+2,sq-4,sq-4);
-    // if(color !== emptyColor){
-    //    ctx.strokeStyle = "black";
-    //    ctx.strokeRect(x*sq,y*sq,sq,sq);
-    // }
-    // else{
-    //     console.log("aaaa");
-    //     ctx.strokeStyle = "pink";
-    //     ctx.strokeRect(x*sq,y*sq,sq,sq);
-    // }
+    if(color == emptyColor){
+        ctx.clearRect(x*sq,y*sq,sq,sq);
+        // ctx.strokeStyle = "black";
+        // ctx.strokeRect(x*sq,y*sq,sq,sq);
+    }
+    else{
+        ctx.fillStyle = color;
+        ctx.fillRect(x*sq,y*sq,sq,sq);
+        // ctx.strokeStyle = "black";
+        // ctx.strokeRect(x*sq,y*sq,sq,sq);
+    }
 }
 
 let board = [];
@@ -70,13 +71,13 @@ function drawBoard(){
 drawBoard();
 
 const tiles = [
-    [Z, '#74b9ff'],
-    [S, '#a29bfe'],
-    [T,'#ffeaa7'],
-    [L,'#fab1a0'],
-    [J,'#00b894'],
-    [O,'#fd79a8'],
-    [I,'#fdcb6e']
+    [Z, '#575fcf'],
+    [S, '#ffcccc'],
+    [T,'#ff4d4d'],
+    [L,'#ffc048'],
+    [J,'#fffa65'],
+    [O,'#32ff7e'],
+    [I,'#18dcff']
 ];
 const numbers = ['0','1','2','3','4','5','6'];
 let copy = [];
@@ -113,12 +114,10 @@ Tile.prototype.fill = function(color){
 }
 
 Tile.prototype.draw = function(){
-    isTile = true;
     this.fill(this.color);
 }
 
 Tile.prototype.unDraw = function(){
-    isTile = false;
     this.fill(emptyColor);
 }
 
@@ -134,14 +133,15 @@ function randomTile(){
 let tile = randomTile();
 
 Tile.prototype.moveDown = function(){
+    tileDistance++;
     if(!this.collision(0,1,this.activeTetromino)){
         this.unDraw();
         this.y++;
         this.draw();
     }
     else{
-        this.lock();
-        tile = randomTile();
+          this.lock();
+          tile = randomTile();
     }
 }
 
@@ -211,13 +211,11 @@ Tile.prototype.collision = function(x,y,tile){
 Tile.prototype.lock = function(){
     for(r=0; r<this.activeTetromino.length; r++){
         for(c=0; c<this.activeTetromino.length; c++){
-            console.log(this.y+r);
             if(!this.activeTetromino[r][c]){
                 continue;
             }
             if(this.y + r < 0){
                 gameOver = true;
-                console.log('siema');
                 gameStatus();
                 break;
             }
@@ -227,7 +225,6 @@ Tile.prototype.lock = function(){
             return;
         }
     }
-    let addScore = 100000;
     let fullRowCount = 0;
     for(r=0; r<row; r++){
 
@@ -236,7 +233,9 @@ Tile.prototype.lock = function(){
             isRowFull = isRowFull && (board[r][c] !== emptyColor);
         }
         if(isRowFull){
-            fullRowCount += fullRowCount + 1;
+            lines++;
+            increseLevel(lines);
+            fullRowCount++;
             for(y=r; y>1; y--){
                 for(c=0; c<column; c++){
                     board[y][c] = board[y-1][c];
@@ -246,20 +245,15 @@ Tile.prototype.lock = function(){
             for(c=0; c<column; c++){
                 board[0][c] = emptyColor;
             }
-            addScore += 10000;
         }
     }
-    countScore(addScore, fullRowCount);
-    
+    if(fullRowCount > 0){
+        rowScore(fullRowCount);
+    }
+    tileDropScore(tileDistance, isHardDrop);
+    tileDistance = 0;
+    isHardDrop = false;
     drawBoard();
-}
-
-function countScore(addScore, multiply){
-    multiply += 1;
-    score += Math.floor((addScore/time.level) * multiply*1000);
-    time.level -= score / 1000;
-    console.log(time.level);
-    scr.innerHTML = "Score:&#10;"+score; 
 }
 
 
@@ -296,9 +290,12 @@ function control(event){
         tile.moveDown();
     }
     else if(event.keyCode == 32){
+        isHardDrop = true;
         while(!tile.collision(0,1,tile.activeTetromino)){
             tile.moveDown();
         }
+        tile.moveDown(); 
+        tile.moveDown();     
     }
 
 }
@@ -315,5 +312,4 @@ function drop(now=0){
         requestAnimationFrame(drop);
     }
 }
-
 drop();

@@ -1,23 +1,30 @@
 body{
-    margin: 1rem;
+    background-image: linear-gradient(135deg, #63cdda, #f8a5c2);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
     overflow: hidden;
 }
 .container{
+    margin-top: 5vh;
+    height: 600px;
     display: flex;
-    padding: 3rem;
-    border: 1px solid black;
+}
+.stats{
+    margin-top: 5vh;
+    height: 600px;
+    width: 200px;
+    display: inline-block;
+
 }
 .gameStatus{
     position: absolute;
 }
 .tetris{
     display: flex;
-    border: 1px solid black;
+    border: 2px solid black;
 }
-.score{
+.score, .lines, .level{
     font-family: 'Press Start 2P', cursive;
     white-space: pre-wrap;
     margin: 1rem;
