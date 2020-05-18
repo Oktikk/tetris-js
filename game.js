@@ -18,18 +18,18 @@ function gameStatus(){
     const ctx2 = canvas2.getContext('2d');
     if(gameOver){
         ctx2.font = "20px 'Press Start 2P'";
-        ctx2.fillText("GAME OVER", 60, row*sq/2);
         ctx2.globalAlpha = 0.1;
         ctx2.fillRect(0,0,300,600);
         ctx2.globalAlpha = 1;
+        ctx2.fillText("GAME OVER", 60, row*sq/2);
         return;
     }
     if(gamePaused){
         ctx2.font = "20px 'Press Start 2P'";
-        ctx2.fillText("GAME PAUSED", 40, row*sq/2);
-        ctx2.globalAlpha = 0.1;
+        ctx2.globalAlpha = 0.2;
         ctx2.fillRect(0,0,300,600);
         ctx2.globalAlpha = 1;
+        ctx2.fillText("GAME PAUSED", 40, row*sq/2);
     }
     else{
         ctx2.clearRect(0,0,300,600);
@@ -69,6 +69,28 @@ function drawBoard(){
 }
 
 drawBoard();
+
+function restart(){
+    for(r=0; r<row; r++){
+        board[r] = [];
+        for(c=0; c<column; c++){
+            board[r][c] = emptyColor;
+        }
+    }
+    gameOver=false;
+    lines=0;
+    score=0;
+    level=1;
+    scr.innerHTML = "Score:&#10;"+score; 
+    lin.innerHTML = "Lines:&#10;"+lines;
+    lvl.innerHTML = "Level:&#10;"+level;
+    time = {start: 0, elapsed: 0, level: 1000};
+    tile = randomTile();
+    tileDistance = 0;
+    drawBoard();
+    gameStatus();
+    drop();
+}
 
 const tiles = [
     [Z, '#575fcf'],
@@ -288,6 +310,9 @@ Tile.prototype.lock = function(){
 document.addEventListener('keydown', control);
 
 function control(event){
+    if(event.keyCode == 82){
+        restart();
+    }
     if(gameOver){
         return;
     }
@@ -322,8 +347,8 @@ function control(event){
         while(!tile.collision(0,1,tile.activeTetromino)){
             tile.moveDown();
         }
-        tile.moveDown(); 
-        tile.moveDown();     
+        tile.lock();
+        tile.moveDown();   
     }
 
 }

@@ -35,7 +35,6 @@ function increseLevel(lines){
     if(lines%10 == 0){
         level++;
         time.level -= 40;
-        console.log(time.level);
         lvl.innerHTML = "Level:&#10;"+level;
     }
 }
