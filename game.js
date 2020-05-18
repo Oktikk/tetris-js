@@ -347,7 +347,7 @@ function control(event){
         while(!tile.collision(0,1,tile.activeTetromino)){
             tile.moveDown();
         }
-        tile.lock();
+        tile.moveDown();
         tile.moveDown();   
     }
 
